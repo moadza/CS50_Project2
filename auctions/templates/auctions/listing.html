@@ -1,0 +1,30 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h1> {{listing.title}} </h1>
+    
+    <p> Description : {{listing.description}} </p>
+
+    <p> Starting bid: {{listing.starting_bid}} </p>
+
+    <p> Category : {{listing.category}} </p>
+
+    <p> Owner : {{listing.owner}} </p>
+
+
+    {% if user.is_authenticated %}
+        <form action="{% url 'watchlist' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="listing_id" value="{{ listing.id }}">
+            <button type="submit">
+                {% if listing in user.watchlist.all %}
+                    Remove from watchlist
+                {% else %}
+                    Add to watchlist
+                {% endif %}
+            </button>
+        </form>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2> Choose one of our Many Categories</h2>
+
+    <form action="{% url 'category' %}" method="post">
+    {% csrf_token %}
+        <select class="form-control" name="category">
+            <option value=""> Choose a category </option>
+            {% for key, value in categories %}
+                <option value="{{key}}"> {{value}} </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Submit</button>   
+    </form>
+
+{% endblock %}

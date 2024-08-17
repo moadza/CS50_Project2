@@ -1,0 +1,42 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h1> {{category}} Listings: </h1>
+
+    <section class="py-5">
+    <div class="container px-3 px-lg-1 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-3 justify-content-center">
+
+        {% for listing in active_listings %}    
+            <div class="col mb-5">
+                <div class="card h-100 custom-card-width">
+                    <!-- Product image-->
+                    <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..." />
+                    <!-- Product details-->
+                    <div class="card-body p-4 bg-dark text-white">
+                    <div class="text-center">
+                        <!-- Product name-->
+                        <h5 class="fw-bolder">{{listing.title}}</h5>
+                        <!-- Product Descrition-->
+                        <p> {{listing.description}} </p>
+                        <!-- Product price-->
+                        <p>Starting Bid:</p>
+                        <p>{{listing.starting_bid}}$</p>
+                    </div>
+                </div>
+                    <!-- Product actions-->
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-dark text-white">
+                        <div class="text-center">
+                            <a class="btn btn-light mt-auto" href="{% url 'listing_page' title=listing.title %}">View Now </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+        </div>
+    </div>
+    </section>
+
+{% endblock %}

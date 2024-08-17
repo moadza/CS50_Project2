@@ -1,0 +1,37 @@
+body {
+    padding: 10px;
+    background-color: #343a40;
+    color: beige;
+}
+a {
+    color: #00bcd4;
+    text-decoration: none;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #ffffff; 
+    border-bottom: 1px solid #ffffff;
+    padding-bottom: 2px;
+}
+
+input[type="submit"] {
+    background-color: #00bcd4; 
+    color: #ffffff; 
+    border: none; 
+    padding: 10px 20px; 
+    font-size: 16px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease, transform 0.3s ease; 
+}
+
+input[type="submit"]:hover {
+    background-color: #0097a7;  
+}
+
+input[type="submit"]:active {
+    background-color: #00838f; 
+    transform: scale(1); 
+}
