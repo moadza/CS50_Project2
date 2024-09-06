@@ -1,18 +1,17 @@
 body {
-    padding: 10px;
     background-color: #343a40;
     color: beige;
 }
 a {
-    color: #00bcd4;
+    color: #ffffff;
     text-decoration: none;
     transition: color 0.3s ease, border-bottom 0.3s ease;
 }
 
 a:hover {
     text-decoration: none;
-    color: #ffffff; 
-    border-bottom: 1px solid #ffffff;
+    color: #00bcd4; 
+    border-bottom: 1px solid #00bcd4;
     padding-bottom: 2px;
 }
 
@@ -34,4 +33,46 @@ input[type="submit"]:hover {
 input[type="submit"]:active {
     background-color: #00838f; 
     transform: scale(1); 
+}
+
+span{
+    color: white;
+}
+
+.upper {
+    color: #ffffff;
+}
+
+.navbar-light .navbar-text {
+    color: #ffffff;
+}
+
+.navbar-light .navbar-brand,
+.navbar-light .navbar-nav .nav-link {
+    color: #ffffff;
+}
+.navbar-light .navbar-nav .nav-link:hover {
+    color: #00bcd4;
+}
+
+.jumbotron {
+    background-image: url('/media/listing_images/moon-background-photo.jpg');
+    background-size: cover; /* Scale the image to cover the div */
+    height: 78vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-top: 0;
+    border-radius: 0rem;
+}
+
+.content-container {
+    padding: 10px;
+}
+
+nav{
+    background-color: #161515;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }

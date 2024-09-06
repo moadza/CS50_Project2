@@ -3,15 +3,24 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from decimal import Decimal
 from .models import *
 
 from .models import User
 
 
 def index(request):
-    active_listings = Listing.objects.filter(active=True).all()
+    active_listings = Listing.objects.filter(state=True).all()
     return render(request, "auctions/index.html",{
-        "active_listings" : active_listings
+        "listings" : active_listings,
+        "state" : "Active"
+    })
+
+def non_active_listings(request):
+    non_active_listings = Listing.objects.filter(state=False).all()
+    return render(request, "auctions/index.html",{
+        "listings" : non_active_listings,
+        "state" : "Non-Active"
     })
 
 
@@ -67,35 +76,40 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def create_listing(request):
-    categories = Listing._meta.get_field('category').choices
-    if request.method == "POST":
-        title = request.POST.get("title")
-        description = request.POST.get("description")
-        starting_bid = request.POST.get("starting_bid")
-        category=request.POST.get("category", "")
-        active = 'active' in request.POST
-        image = request.FILES.get('image', None)
+    if request.user.is_authenticated:
+        categories = Listing._meta.get_field('category').choices
+        if request.method == "POST":
+            title = request.POST.get("title")
+            description = request.POST.get("description")
+            starting_bid = request.POST.get("starting_bid")
+            category=request.POST.get("category", "")
+            image = request.FILES.get('image', None)    
 
-        listing = Listing(
-            title=title,
-            description=description,
-            starting_bid=starting_bid,
-            category=category if category else None,
-            active=active,
-            image=image,
-            owner=request.user
-        )
-        listing.save()
-        active_listings = Listing.objects.filter(active=True).all()
-        return render(request, "auctions/index.html",{
-            "active_listings" : active_listings
-        })
-            
-    else :
-        return render(request, "auctions/create_listing.html",
-        {
-            "categories" : categories
-        })
+            user = request.user
+            starting_bid = Bid(
+                owner=user,
+                price=starting_bid
+            )
+            starting_bid.save()
+
+            listing = Listing(
+                title=title,
+                description=description,
+                starting_bid=starting_bid,
+                category=category if category else None,
+                image=image,
+                owner=user
+            )
+            listing.save()
+            active_listings = Listing.objects.filter(state=True).all()
+            return render(request,"auctions/listing.html",{
+                "listing" : listing
+            })  
+        else :
+            return render(request, "auctions/create_listing.html",
+            {
+                "categories" : categories
+            })
 
 
 def categories(request):
@@ -112,22 +126,12 @@ def category(request):
             "active_listings" : active_listings
         })
 
-def listing_page(request,title):
-    listing_title = title
-    listing = Listing.objects.get(title=listing_title)
-    if request.user.is_authenticated:
-        user = request.user
-        watched_by = True if user.watchlist.filter(title=listing.title).exists() else False
-        print(watched_by)
-        context = {
-            "listing" : listing,
-            "watchedBy" : watched_by
-        }
-    else:
-        context = {
+def listing_page(request,id):
+    listing_id = id
+    listing = Listing.objects.get(id=listing_id)
+    return render(request,"auctions/listing.html",{
             "listing" : listing
-        }
-    return render(request,"auctions/listing.html",context)
+        })
 
 def watchlist(request):
     user = request.user
@@ -145,4 +149,72 @@ def watchlist(request):
     return render(request, "auctions/watchlist.html", {
         "user_watchlist": user_watchlist
     })
+
+def bid(request,id):
+    if request.user.is_authenticated:
+        listing = Listing.objects.get(id=id)
+        listing_owner = listing.owner.id
+        current_user = request.user
+        if listing_owner == current_user:
+            return
+        if request.method == "POST":
+                new_bid_price = Decimal(request.POST.get("current_bid"))
+                if listing.current_bid :
+                    current_bid_price = listing.current_bid.price
+                    if new_bid_price > current_bid_price and new_bid_price >= listing.starting_bid.price :
+                        new_bid = Bid(
+                            price=new_bid_price,
+                            owner=current_user
+                        )
+                        new_bid.save()
+                        listing.current_bid.delete()
+                        listing.current_bid = new_bid
+                        listing.save()
+                        return render(request, "auctions/listing.html",{
+                            "listing" : listing
+                        })
+                    else :
+                        return render(request, "auctions/listing.html",{
+                            "listing" : listing,
+                            "error_message" : "Your bid should be higher than the current Bid"
+                        })
+                else :
+                    new_bid = Bid(
+                            price=new_bid_price,
+                            owner=current_user
+                    )
+                    new_bid.save()
+                    listing.current_bid = new_bid
+                    listing.save()
+                    return render(request, "auctions/listing.html",{
+                            "listing" : listing
+                    })
+
+def close_bid(request,listing_id):
+    current_listing = Listing.objects.get(id=listing_id)
+    if not request.user.is_authenticated or request.user != current_listing.owner or current_listing.state == False :
+        return
+    if request.method == "POST" :     
+        current_listing.state = False
+        current_listing.save()
+        return render(request, "auctions/listing.html", {
+          "listing" : current_listing  
+        })
+
+def add_comment(request,listing_id):
+    if not request.user.is_authenticated :
+        return render(request,"auctions/login.html")
+    if request.method == "POST":
+        comment_content = request.POST.get("comment")
+        commnet_owner = request.user
+        comment_listing = Listing.objects.get(id=listing_id)
+        comment = Comment(
+            listing=comment_listing,
+            content=comment_content,
+            owner=commnet_owner
+        )
+        comment.save()
+        return render(request, "auctions/listing.html", {
+          "listing" : comment_listing,
+        })
 

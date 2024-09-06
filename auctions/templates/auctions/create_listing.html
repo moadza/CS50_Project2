@@ -1,5 +1,8 @@
 {% extends "auctions/layout.html" %}
 
+{% block jumbotron_content %}
+{% endblock %}
+
 {% block body %}
 <h2>Create Listing</h2>
 <form action={% url 'create_lisiting' %} method="post" enctype="multipart/form-data">
@@ -28,10 +31,6 @@
     <div class="form-group">
         <label for="image">Image</label>
         <input type="file" class="form-control-file" name="image">
-    </div>
-    <div class="form-check">
-        <input type="checkbox" class="form-check-input" name="active">
-        <label class="form-check-label" for="active">Active</label>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
